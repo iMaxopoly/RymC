@@ -1,0 +1,78 @@
+import scrapy
+import validators
+
+import writer
+from find_licensor import find_licensor
+from report_structure import GenericReportRow
+from string_utils import find_between
+
+if __name__ == "__main__":
+    print("file is meant for import.")
+    exit()
+
+
+class GooddramaTo(scrapy.Spider):
+    __domain = "www.gooddrama.to"
+    __protocol = "http"
+    __baseURL = __protocol + "://" + __domain
+    __timestamp = ""
+    __clients = None
+
+    name = __domain
+    allowed_domains = [__domain, "videozoo.me", "video66.org", "easyvideo.me", "playbb.me"]
+    start_urls = [
+        __baseURL + "/watch-drama-shows/",
+        __baseURL + "/drama-movies/",
+    ]
+
+    def __init__(self, time_stamp, clients, **kwargs):
+        self.__timestamp = time_stamp
+        self.__clients = clients
+        super(GooddramaTo, self).__init__(**kwargs)
+
+    def parse(self, response):
+        links = response.xpath('//table[@class="series_index"]//a/@href').extract()
+        for link in links:
+            yield scrapy.Request(response.urljoin(link), callback=self.parse_for_episodes)
+
+    def parse_for_episodes(self, response):
+        links = response.xpath('//div[@id="videos"]//a/@href').extract()
+        for link in links:
+            yield scrapy.Request(response.urljoin(link), callback=self.parse_for_partlist)
+
+    def parse_for_partlist(self, response):
+    	title = response.xpath('/html/head/title/text()').extract_first()
+        links = response.xpath('//div[@class="vmargin"]//iframe/@src').extract()
+        licensor = find_licensor(title, self.__clients)
+        item = GenericReportRow()
+        item['licensor_name'] = licensor
+        item['site_pagetitle'] = title
+        item['site_link'] = response.url
+
+        links = response.xpath('//ul[@class="part_list"]//a/@href').extract()
+        for link in links:
+            yield scrapy.Request(response.urljoin(link), callback=self.parse_for_iframes, meta={'item': item})
+
+    def parse_for_iframes(self, response):
+        for link in links:
+            if "videozoo.me" in link or "video66.org" in link or "easyvideo.me" in link or "playbb.me" in link:
+                yield scrapy.Request(link, callback=self.parse_deeper, meta={'item': response.meta['item']})
+            # else:
+            #     writer.write("./debug/gooddrama.to/" + self.__timestamp,
+            #                  "./debug/gooddrama.to/" + self.__timestamp + "/links.txt",
+            #                  licensor + "<<@>>" + title + "<<@>>" + response.url + "<<@>>" + link)
+
+    def parse_deeper(self, response):
+        html = response.body
+        result = find_between(html, "url: 'h", "',")
+        if result is "":
+            print "NOT FOUND"
+            return
+        print "FOUND", result
+        result = "h" + result
+        if validators.url(result, public=True):
+            writer.write("./debug/gooddrama.to/" + self.__timestamp,
+                         "./debug/gooddrama.to/" + self.__timestamp + "/links.txt",
+                         response.meta['item']['licensor_name'] + "<<@>>" +
+                         response.meta['item']['site_pagetitle'] + "<<@>>" +
+                         response.meta['item']['site_link'] + "<<@>>" + result)
