@@ -41,38 +41,32 @@ class GooddramaTo(scrapy.Spider):
             yield scrapy.Request(response.urljoin(link), callback=self.parse_for_partlist)
 
     def parse_for_partlist(self, response):
-    	title = response.xpath('/html/head/title/text()').extract_first()
-        links = response.xpath('//div[@class="vmargin"]//iframe/@src').extract()
-        licensor = find_licensor(title, self.__clients)
-        item = GenericReportRow()
-        item['licensor_name'] = licensor
-        item['site_pagetitle'] = title
-        item['site_link'] = response.url
-
         links = response.xpath('//ul[@class="part_list"]//a/@href').extract()
         for link in links:
-            yield scrapy.Request(response.urljoin(link), callback=self.parse_for_iframes, meta={'item': item})
+            yield scrapy.Request(response.urljoin(link), callback=self.parse_for_iframes)
 
     def parse_for_iframes(self, response):
+        title = response.xpath('/html/head/title/text()').extract_first()
+        links = response.xpath('//div[@class="vmargin"]//iframe/@src').extract()
+        licensor = find_licensor(title, self.__clients)
+
         for link in links:
             if "videozoo.me" in link or "video66.org" in link or "easyvideo.me" in link or "playbb.me" in link:
-                yield scrapy.Request(link, callback=self.parse_deeper, meta={'item': response.meta['item']})
-            # else:
-            #     writer.write("./debug/gooddrama.to/" + self.__timestamp,
-            #                  "./debug/gooddrama.to/" + self.__timestamp + "/links.txt",
-            #                  licensor + "<<@>>" + title + "<<@>>" + response.url + "<<@>>" + link)
+                item = GenericReportRow()
+                item['licensor_name'] = licensor
+                item['site_pagetitle'] = title
+                item['site_link'] = response.url
+                yield scrapy.Request(link, callback=self.parse_deeper, meta={'item': item})
 
     def parse_deeper(self, response):
         html = response.body
         result = find_between(html, "url: 'h", "',")
         if result is "":
-            print "NOT FOUND"
             return
-        print "FOUND", result
         result = "h" + result
         if validators.url(result, public=True):
             writer.write("./debug/gooddrama.to/" + self.__timestamp,
                          "./debug/gooddrama.to/" + self.__timestamp + "/links.txt",
                          response.meta['item']['licensor_name'] + "<<@>>" +
                          response.meta['item']['site_pagetitle'] + "<<@>>" +
-                         response.meta['item']['site_link'] + "<<@>>" + result)
+                         response.meta['item']['site_link'] + "<<@>>" + response.url + "<<@>>" + result)

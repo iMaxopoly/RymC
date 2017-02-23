@@ -187,6 +187,19 @@ def parser_args():
         widget="DirChooser")
     dramanice_to_fields.add_argument('workers', default=30, type=int, help='Number of threads.')
 
+    nineanime_to_fields = subparsers.add_parser('9anime.to')
+    nineanime_to_fields.add_argument(
+        'savepath', metavar='Reports save location',
+        default="./Reports",
+        help='Click the browse button to locate the directory where reports will be saved.',
+        widget="DirChooser")
+    nineanime_to_fields.add_argument(
+        'clientspath', metavar='Clients folder location',
+        default="./Clients",
+        help='Click the browse button to locate the Clients folder which contains text files containing brand names.',
+        widget="DirChooser")
+    nineanime_to_fields.add_argument('workers', default=30, type=int, help='Number of threads.')
+
     args = p.parse_args()
     return args
 

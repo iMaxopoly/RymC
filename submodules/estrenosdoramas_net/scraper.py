@@ -67,6 +67,10 @@ class EstrenosdoramasNet(scrapy.Spider):
                     writer.write("./debug/estrenosdoramas.net/" + self.__timestamp,
                                  "./debug/estrenosdoramas.net/" + self.__timestamp + "/links.txt",
                                  licensor + "<<@>>" + title + "<<@>>" + response.url + "<<@>>" + link)
+                else:
+                    writer.write("./debug/estrenosdoramas.net/" + self.__timestamp,
+                                 "./debug/estrenosdoramas.net/" + self.__timestamp + "/links.txt",
+                                 licensor + "<<@>>" + title + "<<@>>" + response.url + "<<@>>" + link)
 
     def parse_for_mundoasia(self, response):
         count = 0

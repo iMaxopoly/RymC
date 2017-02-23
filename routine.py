@@ -15,6 +15,7 @@ from submodules.estrenosdoramas_net.scraper import EstrenosdoramasNet
 from submodules.gooddrama_to.scraper import GooddramaTo
 from submodules.icdrama_se.scraper import IcdramaSe
 from submodules.myasiantv_se.scraper import MyasiantvSe
+from submodules.nineanime_to.scraper import NineanimeTo
 from submodules.novelascoreanas_es.scraper import NovelascoreanasEs
 
 
@@ -30,8 +31,7 @@ def routine(timestamp, args, clients):
     })
 
     if args.subparser_name == "boxasian.com" \
-            or args.subparser_name == "kissasian.com" \
-            or args.subparser_name == "icdrama.se":
+            or args.subparser_name == "kissasian.com":
         print "Not implemented yet."
         return
 
@@ -61,6 +61,8 @@ def routine(timestamp, args, clients):
             yield runner.crawl(DoramastvCom, time_stamp=timestamp, clients=clients)
         elif args.subparser_name == "dramanice.to":
             yield runner.crawl(DramaniceTo, time_stamp=timestamp, clients=clients)
+        elif args.subparser_name == "9anime.to":
+            yield runner.crawl(NineanimeTo, time_stamp=timestamp, clients=clients)
         reactor.stop()
 
     crawl()
@@ -76,6 +78,8 @@ def routine(timestamp, args, clients):
         prepare_0_hop_report(args.savepath, "myasiantv.se", timestamp)
     elif args.subparser_name == "doramasjc.com":
         prepare_0_hop_report(args.savepath, "doramasjc.com", timestamp)
+    elif args.subparser_name == "9anime.to":
+        prepare_0_hop_report(args.savepath, "9anime.to", timestamp)
     elif args.subparser_name == "gooddrama.to":
         prepare_1_hop_report(args.savepath, "gooddrama.to", timestamp)
     elif args.subparser_name == "dramago.com":
@@ -85,7 +89,9 @@ def routine(timestamp, args, clients):
     elif args.subparser_name == "dramanice.to":
         prepare_1_hop_report(args.savepath, "dramanice.to", timestamp)
     elif args.subparser_name == "doramastv.com":
-        prepare_0_hop_report(args.savepath, "doramastv.com", timestamp)
+        prepare_1_hop_report(args.savepath, "doramastv.com", timestamp)
+    elif args.subparser_name == "icdrama.se":
+        prepare_1_hop_report(args.savepath, "icdrama.se", timestamp)
     # elif args.subparser_name == "icdrama.se":
     #     iframe_objs = read("./debug/icdrama.se/" + timestamp + "/links.txt")
     #
