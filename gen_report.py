@@ -24,9 +24,9 @@ def main():
         exit()
 
     if report_hops == 0:
-        prepare_0_hop_report("./Reports", time_stamp)
+        prepare_0_hop_report("./Reports" + "/" + site_name + "_" + time_stamp + ".xlsx", site_name, time_stamp)
     elif report_hops == 1:
-        prepare_1_hop_report(("./Reports" + "/" + site_name + "_" + time_stamp + ".xlsx"), site_name, time_stamp)
+        prepare_1_hop_report("./Reports" + "/" + site_name + "_" + time_stamp + ".xlsx", site_name, time_stamp)
 
 
 if __name__ == '__main__':
