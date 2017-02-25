@@ -5,7 +5,8 @@ from report_1_hop import prepare_1_hop_report
 
 
 def main():
-    if len(sys.argv) is not 3:
+    if len(sys.argv) is not 4:
+        print "Num of arguments entered:", len(sys.argv) - 1
         print "Example usage is:"
         print "\tgen_report.* {site-name} {time-stamp} {hops}"
         print "Where:"
@@ -14,6 +15,7 @@ def main():
         print "\tThird parameter is a number of how many hops the report has, usually 1 or 0"
         exit()
 
+    print "Generating Report please wait..."
     site_name = sys.argv[1]
     time_stamp = sys.argv[2]
     report_hops = None
@@ -24,9 +26,9 @@ def main():
         exit()
 
     if report_hops == 0:
-        prepare_0_hop_report("./Reports" + "/" + site_name + "_" + time_stamp + ".xlsx", site_name, time_stamp)
+        prepare_0_hop_report("./Reports", site_name, time_stamp)
     elif report_hops == 1:
-        prepare_1_hop_report("./Reports" + "/" + site_name + "_" + time_stamp + ".xlsx", site_name, time_stamp)
+        prepare_1_hop_report("./Reports", site_name, time_stamp)
 
 
 if __name__ == '__main__':
